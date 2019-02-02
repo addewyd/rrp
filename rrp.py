@@ -3,8 +3,8 @@ import cv2
 import math
 import sys
 
-w = 600
-h = 400
+w = 1024
+h = 768
 
 
 class Vec3f:
@@ -19,7 +19,6 @@ class Vec3f:
         return Vec3f(self.v[0] - other.v[0], self.v[1]-other.v[1], self.v[2]-other.v[2])
     def __add__(self, other):
         return Vec3f(self.v[0] + other.v[0], self.v[1] + other.v[1], self.v[2] + other.v[2])
-
     def __mul__(self, n):
         return Vec3f(self.v[0] * n, self.v[1] * n, self.v[2] * n)
 
@@ -73,22 +72,22 @@ def reflect(I:Vec3f, N:Vec3f):
     return I - N * 2 * dot(I, N)
 
 def refract(I:Vec3f, N:Vec3f, eta_t:float, eta_i:float =1.):
-    cosi = - max(-1., min(1., dot(I,N)))
-    if cosi < 0: return refract(I, Vec3f(0,0,0)-N, eta_i, eta_t)
+    cosi = - max(-1., min(1., dot(I, N)))
+    if cosi < 0: return refract(I, Vec3f(0,0,0) - N, eta_i, eta_t)
     eta = eta_i / eta_t
-    k = 1 - eta * eta *(1 - cosi * cosi)
+    k = 1 - eta * eta * (1 - cosi * cosi)
     if k < 0:
         return Vec3f(1,0,0)
     return I * eta + N * (eta * cosi - math.sqrt(k))
 
 
-ivory = Material(1.0, Vec4f(0.6,  0.3, 0.1, 0.0), Vec3f(0.4, 0.4, 0.3),   50.)
-glass = Material(1.5, Vec4f(0.1,  0.5, 0.1, 0.8), Vec3f(0.6, 0.7, 0.4),  225.)
+ivory = Material(1.0, Vec4f(0.6,  0.3, 0.1, 0.0), Vec3f(0.3, 0.4, 0.4),   50.)
+glass = Material(1.5, Vec4f(0.,  0.5, 0.1, 0.8), Vec3f(0.8, 0.7, 0.6),  125.)
 red_rubber = Material (1.0, Vec4f(0.9,  0.1, 0.0, 0.0), Vec3f(0.1, 0.1, 0.3),   10.);
 mirror = Material(1.0, Vec4f(0.0, 10.0, 0.8, 0.0), Vec3f(1.0, 1.0, 1.0), 1425.)
 
 asp = [ \
-        Sphere(Vec3f(-2,    0,   -16), 3, ivory),   \
+        Sphere(Vec3f(-3,    0,   -16), 2, ivory),   \
         Sphere(Vec3f(-1.0, -1.5, -12), 2, glass),   \
         Sphere(Vec3f( 1.5, -0.5, -18), 3, red_rubber),  \
         Sphere(Vec3f( 7,    5,   -18), 4,     mirror)]
@@ -122,8 +121,7 @@ def scene_intersect(orig:Vec3f, direct:Vec3f, spheres):
             if ((int(.5 * hit.x()) + 1000) + int(.5 * hit.z()) & 1) > 0:
                 mat.diffuse_color = Vec3f(.3, .3, .3)
             else:
-                mat.diffuse_color = Vec3f(.1, .2, .1);
-
+                mat.diffuse_color = Vec3f(.1, .2, .3);
 
     return (min(spheres_dist, checkerboard_dist) < 1000, hit, N, mat)
 
@@ -134,7 +132,7 @@ def cast_ray(orig: Vec3f, direct: Vec3f, spheres, lights, depth = 0):
     (b, point, N, material) = scene_intersect(orig, direct, spheres)
 
     if (depth > 4) or (not b):
-        return Vec3f(0.5, 0.4, 0.1)
+        return Vec3f(0.8, 0.7, 0.2)
     
 
     reflect_dir = reflect(direct, N).normalize()
@@ -164,11 +162,11 @@ def cast_ray(orig: Vec3f, direct: Vec3f, spheres, lights, depth = 0):
         else:
             shadow_orig =  point + N * 0.001
         (b,  shadow_pt, shadow_N, tmpmaterial) = scene_intersect(shadow_orig, light_dir, spheres)
-        if b and ((shadow_pt-shadow_orig).norm() < light_distance): continue
+        if b and ((shadow_pt - shadow_orig).norm() < light_distance): continue
 
         diffuse_light_intensity  = diffuse_light_intensity + L.intensity * max(0., dot(light_dir,N))
         specular_light_intensity = specular_light_intensity + \
-            math.pow(max(0., -dot(reflect(light_dir * -1, direct), N) ), material.specular_exponent) * L.intensity
+            math.pow(max(0., -dot(reflect(light_dir * -1, N), direct) ), material.specular_exponent) * L.intensity
 
     return material.diffuse_color * diffuse_light_intensity * material.albedo.v[0] + \
             Vec3f(1., 1., 1.) * specular_light_intensity * material.albedo.v[1] + \
@@ -192,7 +190,7 @@ def render(asp, lights):
     cv2.imshow('img', z)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-    cv2.imwrite('render01.jpg', z * 255)
+    cv2.imwrite('render03.jpg', z * 255)
 
 render(asp, lights)
 
