@@ -273,9 +273,9 @@
 ;;;
 
 (defvar =s1 (make-instance 'sphere :v (CVec3f (list -3 0 -16)) :radius 2 :mat mat1))
-(defvar =s2 (make-instance 'sphere :v (CVec3f (list -1 -1.5 -12)) :radius 2 :mat  mat5))
-(defvar =s3 (make-instance 'sphere :v (CVec3f (list 1.5 -0.5 -18)) :radius 3 :mat  mat6))
-(defvar =s4 (make-instance 'sphere :v (CVec3f (list 7 5 -18)) :radius 4 :mat mat7))
+(defvar =s2 (make-instance 'sphere :v (CVec3f (list -1 -1.5 -12)) :radius 2 :mat  mat2))
+(defvar =s3 (make-instance 'sphere :v (CVec3f (list 1.5 -0.5 -18)) :radius 3 :mat  mat3))
+(defvar =s4 (make-instance 'sphere :v (CVec3f (list 7 5 -18)) :radius 4 :mat mat4))
 
 
 (defvar *spheres* (list =s1 =s2 =s3 =s4))
